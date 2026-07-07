@@ -7,3 +7,5 @@ A Flask-based REST API featuring mock array storage, seamless validation parsing
 2. Spin up the Flask API: `python app.py`
 3. Launch the operational workspace interface terminal in another window: `python cli.py`
 4. Execute validation testing patterns: `pytest test_app.py`
+
+Save the file.
