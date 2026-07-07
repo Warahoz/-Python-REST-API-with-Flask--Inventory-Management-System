@@ -100,4 +100,30 @@ def test_fetch_external_product(mock_get, client):
     assert res.json['item']['product_name'] == "Mock API Juice Box"
     assert res.json['item']['price'] == 0.89
 
-    
+    def test_get_single_item_not_found(client):
+    """Test fetching an item ID that doesn't exist (Should 404)"""
+    res = client.get('/inventory/999')
+    assert res.status_code == 404
+    assert "error" in res.json
+
+def test_patch_item_not_found(client):
+    """Test modifying an item ID that doesn't exist (Should 404)"""
+    res = client.patch('/inventory/999', json={"price": 10.0})
+    assert res.status_code == 404
+
+def test_delete_item_not_found(client):
+    """Test deleting an item ID that doesn't exist (Should 404)"""
+    res = client.delete('/inventory/999')
+    assert res.status_code == 404
+
+@patch('app.requests.get')
+def test_external_registry_barcode_not_found(mock_get, client):
+    """Test OpenFoodFacts API returning status 0 (Product Not Found)"""
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {
+        "status": 0,  # 0 means barcode not in their system
+        "status_verbose": "product not found"
+    }
+    res = client.post('/inventory/fetch-external/0000000000000', json={"price": 1.00})
+    assert res.status_code == 404
+    assert "not identified" in res.json['error']
